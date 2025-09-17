@@ -43,7 +43,7 @@ public class EnemyAI : MonoBehaviour
             Shoot();
 
 
-        timer += Time.deltaTime;
+        timer += Time.deltaTime; //keep track of time
     }
 
     void SetNewTarget()
@@ -82,7 +82,7 @@ public class EnemyAI : MonoBehaviour
     private void OnDrawGizmos()
     {
         //draws target location
-        Gizmos.color = Color.green;
+        Gizmos.color = Color.cyan;
         Gizmos.DrawSphere(targetPoint, 0.05f);
     }
 }
