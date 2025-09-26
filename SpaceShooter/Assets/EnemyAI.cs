@@ -5,11 +5,14 @@ using UnityEngine;
 
 public class EnemyAI : MonoBehaviour
 {
-    public int health;
+
+    public int health = 100;
     public float speed;
     public GameObject bulletPrefab;
     public Transform player;
     float coolDown = 5f;
+
+
 
     Vector3 targetPoint; //where enemy is heading
 
@@ -18,6 +21,7 @@ public class EnemyAI : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        player = FindObjectOfType<ShipController>().transform;
         SetCoolDown();
         targetPoint = Vector3.zero;
         SetNewTarget();
@@ -34,9 +38,14 @@ public class EnemyAI : MonoBehaviour
         if (Vector3.Distance(targetPoint, transform.position) < 0.4f)
             SetNewTarget();
 
-        Vector3 playerDirection = player.position - transform.position;
-        float angle = Mathf.Rad2Deg * Mathf.Atan2(playerDirection.y, playerDirection.x);
-        transform.rotation = Quaternion.Euler(0f, 0f, angle -90f);
+        if(player != null) //if player exists
+        {
+
+            Vector3 playerDirection = player.position - transform.position;
+            float angle = Mathf.Rad2Deg * Mathf.Atan2(playerDirection.y, playerDirection.x);
+            transform.rotation = Quaternion.Euler(0f, 0f, angle - 90f);
+
+        }
 
 
         if (timer >= coolDown)
@@ -44,6 +53,8 @@ public class EnemyAI : MonoBehaviour
 
 
         timer += Time.deltaTime; //keep track of time
+
+
     }
 
     void SetNewTarget()
@@ -84,5 +95,43 @@ public class EnemyAI : MonoBehaviour
         //draws target location
         Gizmos.color = Color.cyan;
         Gizmos.DrawSphere(targetPoint, 0.05f);
+    }
+
+
+
+    public void TakeDamage(int damage)
+    {
+        health -= damage; //subtract from health
+        if (health <= 0)
+        {
+            EnemySpawner.instance.enemyCount--; //subtract 1 from enemy count
+            Destroy(gameObject);
+        }
+        StartCoroutine(FlashRed());
+
+    }
+
+
+    IEnumerator FlashRed()
+    {
+        SpriteRenderer renderer = GetComponent<SpriteRenderer>();
+
+
+        for (float val = 1f; val >= 0; val -= 0.1f) //fade from white to red
+        {
+            renderer.color = new Color(1f, val, val);
+
+            yield return new WaitForSeconds(0.01f);
+
+        }
+
+        for (float val = 0f; val <= 1; val += 0.1f) //fade from red to white
+        {
+            renderer.color = new Color(1f, val, val);
+            yield return new WaitForSeconds(0.01f);
+        }
+
+
+        yield return null;
     }
 }

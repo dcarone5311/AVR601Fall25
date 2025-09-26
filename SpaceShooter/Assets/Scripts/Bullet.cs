@@ -5,6 +5,7 @@ using UnityEngine;
 public class Bullet : MonoBehaviour
 {
     float bulletSpeed = 20f;
+    public int damage = 10;
 
     // Start is called before the first frame update
     void Start()
@@ -20,10 +21,16 @@ public class Bullet : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
+        GameObject other = collision.gameObject;//object hit by bullet
+
         Debug.Log("Object Hit");
-        if(gameObject.tag != collision.gameObject.tag)
+        if(gameObject.tag != other.tag) //tags must be different enemy bullet hits player or player bullet hits enemy
         {
-            Destroy(collision.gameObject); //destroy opposing ship
+            if (other.tag == "Enemy") //hit enemy
+                other.GetComponent<EnemyAI>().TakeDamage(damage);
+            if (other.tag == "Player") //hit player
+                other.GetComponent<ShipController>().TakeDamage(damage);
+
             Destroy(gameObject);//destroy bullet
         }
 
